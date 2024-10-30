@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { 
-  
+  User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -21,11 +21,6 @@ import {
 } from 'firebase/firestore';
 import { auth as firebaseAuth, db as firebaseDb } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-09-30.acacia', // Use the latest API version
-});
 
 // Type assertions for Firebase instances
 const auth = firebaseAuth as Auth;

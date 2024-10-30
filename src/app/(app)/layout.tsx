@@ -1,15 +1,7 @@
-'use client';
-
-import { ProtectedRoute } from '@/components/protected-route';
-
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ProtectedRoute>
-      {children}
-    </ProtectedRoute>
-  );
+  return <div className="min-h-screen bg-gray-950">{children}</div>;
 }
