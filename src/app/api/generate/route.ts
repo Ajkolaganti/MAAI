@@ -67,12 +67,14 @@ Return only the code without any additional text or formatting.`;
       max_tokens: 2000,
       temperature: 0.7,
     });
+    console.log('completion done', completion);
 
     let reactCode = completion.choices[0].message?.content?.trim() ?? '';
 
     // Remove any text before or after the code
     const codeMatch = reactCode.match(/(?:```jsx|```javascript|```)([\s\S]*?)(?:```|$)/);
     if (codeMatch) {
+      console.log('codeMatch', codeMatch);
       reactCode = codeMatch[1].trim();
     } else {
       // If no code fences are found, attempt to extract code by removing non-code lines
