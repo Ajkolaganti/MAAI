@@ -11,13 +11,13 @@ import {
 } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB2An-_fM3jEZFiPCvFPlQL6fDjXT0bpJM",
-    authDomain: "maai-7c768.firebaseapp.com",
-    projectId: "maai-7c768",
-    storageBucket: "maai-7c768.appspot.com",
-    messagingSenderId: "271401318015",
-    appId: "1:271401318015:web:8e97020eb43bb83a1db14a",
-    measurementId: "G-Q39YGKPM61"
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
   };
 
   
