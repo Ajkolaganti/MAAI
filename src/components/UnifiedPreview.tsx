@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Loader2, 
   Maximize2, 
-  Minimize2, 
   Code2, 
   Eye,
   Copy,
@@ -33,13 +32,14 @@ interface UnifiedPreviewProps {
 export function UnifiedPreview({ code, loading }: UnifiedPreviewProps) {
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [displayedCode, setDisplayedCode] = useState('');
+  const [typingComplete, setTypingComplete] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     if (code && code !== displayedCode) {
+      setTypingComplete(false);
       setIsTyping(true);
       setDisplayedCode('');
       let currentIndex = 0;
@@ -51,12 +51,13 @@ export function UnifiedPreview({ code, loading }: UnifiedPreviewProps) {
           setTimeout(typeCode, 5);
         } else {
           setIsTyping(false);
+          setTypingComplete(true);
         }
       };
 
       typeCode();
     }
-  }, [code]);
+  }, [code, displayedCode]);
 
   const handleCopy = async () => {
     if (code) {
@@ -136,41 +137,43 @@ export function UnifiedPreview({ code, loading }: UnifiedPreviewProps) {
       <div className="h-[calc(100%-3rem)]">
         {activeTab === 'preview' ? (
           <iframe
-            srcDoc={generatePreviewHtml(code)}
+            srcDoc={generatePreviewHtml(code || '')}
             className="w-full h-full border-0"
             sandbox="allow-scripts"
             onError={(e) => {
               console.error('Preview error:', e);
-              setError('Failed to render preview');
             }}
           />
         ) : (
           <div className="relative h-full">
             <pre className="h-full overflow-auto p-4 text-sm font-mono bg-black/40">
-              <code className="text-gray-300">
+              <code className={`text-gray-300 ${isTyping ? 'typing' : ''}`}>
                 {displayedCode}
+                {isTyping && '|'}
               </code>
             </pre>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopy}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-white font-['Orbitron'] tracking-wider"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Copy className="h-4 w-4 mr-2" />
-                    )}
-                    {copied ? 'Copied!' : 'Copy'}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Copy Code</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {typingComplete && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopy}
+                      className="absolute top-4 right-4 text-gray-400 hover:text-white font-['Orbitron'] tracking-wider"
+                    >
+                      {copied ? (
+                        <Check className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Copy className="h-4 w-4 mr-2" />
+                      )}
+                      {copied ? 'Copied!' : 'Copy'}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Copy Code</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         )}
       </div>

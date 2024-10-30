@@ -4,12 +4,10 @@ import { useState } from 'react';
 import { 
   History,  
   FileCode, 
-  Compare,
+  GitCompare,
   Clock, 
   ChevronRight,
   ChevronDown,
-  Check,
-  ArrowRight
 } from 'lucide-react';
 
 interface Version {
@@ -80,7 +78,7 @@ export function VersionControl({
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
-                <Compare className="h-3 w-3" />
+                <GitCompare className="h-3 w-3" />
               </button>
             </div>
           </div>

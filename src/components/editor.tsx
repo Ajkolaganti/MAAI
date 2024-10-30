@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { 
   Loader2, Send, AlertCircle, X, 
@@ -23,7 +23,9 @@ export function Editor({ onGenerate }: EditorProps) {
   const [error, setError] = useState<GenerationError | null>(null);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const { useCredits, credits } = useAuth();
+
+  // Rename functions to avoid 'use' prefix
+  const { useCredits: deductCredits, credits, checkCredits: verifyCredits } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +35,8 @@ export function Editor({ onGenerate }: EditorProps) {
       setLoading(true);
       setError(null);
       
-      const hasCredits = await useCredits(1);
-      if (!hasCredits) {
+      const hasEnoughCredits = await verifyCredits();
+      if (!hasEnoughCredits) {
         setError({
           message: 'Insufficient credits. Please upgrade your plan to continue.',
           type: 'warning'
@@ -54,24 +56,30 @@ export function Editor({ onGenerate }: EditorProps) {
 
       const data = await response.json();
       
-if (data.error) {
+      if (data.error) {
         throw new Error(data.error);
       }
 
       setGeneratedCode(data.react);
-        onGenerate(data.react); 
+      onGenerate(data.react); 
       
+      try {
+        await deductCredits(1);
+      } catch (error) {
+        console.error('Failed to update credits:', error);
+      }
+
       toast.success('Code generated successfully!', {
         description: 'Your UI component has been generated.'
       });
 
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       setError({
-        message: error.message || 'An error occurred while generating code.',
+        message: error instanceof Error ? error.message : 'An error occurred while generating code.',
         type: 'error'
       });
       toast.error('Generation failed', {
-        description: error.message
+        description: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
     } finally {
       setLoading(false);
@@ -86,8 +94,9 @@ if (data.error) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast.success('Code copied to clipboard!');
-    } catch (err) {
+    } catch (error) {
       toast.error('Failed to copy code');
+      console.error('Failed to copy code:', error);
     }
   };
 
@@ -96,6 +105,7 @@ if (data.error) {
     setGeneratedCode(null);
     setError(null);
   };
+
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 relative">

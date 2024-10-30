@@ -9,7 +9,7 @@ export function UpgradePlan() {
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async (plan: 'pro' | 'ultra') => {
-    if (!user) return;
+    if (!user?.id) return;
     
     setLoading(true);
     try {
@@ -18,7 +18,7 @@ export function UpgradePlan() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan,
-          userId: user.uid
+          userId: user.id
         })
       });
 

@@ -2,13 +2,29 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { Clock, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+// import { useAuth } from '@/contexts/auth-context';
+import { Clock } from 'lucide-react';
+
+type Generation = {
+  prompt: string;
+  timestamp: string;
+};
+
+const fetchGenerations = async (): Promise<Generation[]> => {
+  // Replace with your actual API endpoint
+  const response = await fetch('/api/generations');
+  return response.json();
+};
 
 export default function HistoryPage() {
-  const { user } = useAuth();
-  const [generations, setGenerations] = useState([]);
+//   const { user } = useAuth();
+  const [generations, setGenerations] = useState<Generation[]>([]);
+
+  useEffect(() => {
+    // Fetch generations and use setGenerations
+    fetchGenerations().then(data => setGenerations(data));
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -25,7 +41,24 @@ export default function HistoryPage() {
                 className="p-4 rounded-lg bg-gray-900/50 border border-gray-800
                          hover:border-purple-500/50 transition-colors"
               >
-                {/* Add your generation history item content here */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-medium text-lg text-gray-200">
+                      {generation.prompt}
+                    </h3>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {new Date(generation.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 text-sm rounded-md bg-purple-600 hover:bg-purple-700 transition-colors">
+                      View
+                    </button>
+                    <button className="px-3 py-1 text-sm rounded-md bg-red-600 hover:bg-red-700 transition-colors">
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             ))
           ) : (

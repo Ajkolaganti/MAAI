@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Code2, Eye, Maximize2, Minimize2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,7 +23,9 @@ export function Preview({ code }: PreviewProps) {
       toast.success('Code copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      toast.error('Failed to copy code');
+      toast.error('Failed to copy code', {
+        description: err instanceof Error ? err.message : 'An error occurred while copying code.'
+      });
     }
   };
 

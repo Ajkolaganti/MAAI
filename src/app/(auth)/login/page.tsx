@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
@@ -18,6 +18,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { signIn, user } = useAuth();
 
+  useEffect(() => {
+    if (user) {
+      router.push('/generate');
+    }
+  }, [user, router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -31,9 +37,9 @@ export default function LoginPage() {
     try {
       await signIn(formData.email, formData.password);
       console.log('Sign in successful');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Sign in error:', err);
-      setError(err.message || 'Failed to sign in');
+      setError(err instanceof Error ? err.message : 'Failed to sign in');
       setLoading(false);
     }
   };
@@ -126,7 +132,7 @@ export default function LoginPage() {
 
         <div className="text-center">
           <p className="text-sm text-gray-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link
               href="/signup"
               className="font-medium text-purple-400 hover:text-purple-300 transition-colors"

@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Sparkles, Code2, Zap, Shield, 
+   Code2, Zap, Shield, 
   ChevronRight, Check, Github, Loader2 
 } from 'lucide-react';
 import { AnimatedBackground } from '../components/AnimatedBackground';
@@ -75,7 +75,6 @@ const pricingPlans = [
 export default function LandingPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async (planId: string) => {
@@ -96,7 +95,7 @@ export default function LandingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan: planId,
-          userId: user.uid
+          userId: user.id
         })
       });
 

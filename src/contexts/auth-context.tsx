@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { 
-  User,
+  
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -16,10 +16,16 @@ import {
   onSnapshot,
   serverTimestamp,
   DocumentReference,
-  Firestore
+  Firestore,
+  Timestamp
 } from 'firebase/firestore';
 import { auth as firebaseAuth, db as firebaseDb } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-09-30.acacia', // Use the latest API version
+});
 
 // Type assertions for Firebase instances
 const auth = firebaseAuth as Auth;
@@ -29,8 +35,8 @@ const db = firebaseDb as Firestore;
 interface UserData {
   email: string | null;
   credits: UserCredits;
-  createdAt: any; // FirebaseTimestamp
-  lastSeen: any; // FirebaseTimestamp
+  createdAt: Timestamp;
+  lastSeen: Timestamp;
   plan: 'free' | 'pro' | 'ultra';
 }
 
@@ -39,7 +45,13 @@ interface UserCredits {
   used: number;
 }
 
-interface AuthContextType {
+type User = {
+  id: string;
+  email: string;
+  // add other user properties you need
+};
+
+type AuthContextType = {
   user: User | null;
   loading: boolean;
   credits: UserCredits;
@@ -48,7 +60,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   checkCredits: () => Promise<boolean>;
   useCredits: (amount: number) => Promise<boolean>;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -104,7 +116,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Auth state changed:', !!user);
       
       if (user) {
-        setUser(user);
+        setUser({
+          id: user.uid,
+          email: user.email || ''
+        });
         const userDocRef = doc(db, 'users', user.uid);
         const unsubscribeDoc = onSnapshot(userDocRef, (doc) => {
           if (doc.exists()) {
@@ -165,7 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       if (user) {
-        await updateLastSeen(user.uid);
+        await updateLastSeen(user.id);
       }
       await signOut(auth);
       router.push('/'); // Redirect to home after logout
@@ -186,7 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const remainingCredits = credits.total - credits.used;
       if (remainingCredits >= amount) {
-        const userRef = doc(db, 'users', user.uid);
+        const userRef = doc(db, 'users', user.id);
         await setDoc(userRef, {
           credits: {
             total: credits.total,

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Maai from '../../../../public/Maai.png';
 import { 
-  User, ChevronDown, LogOut, CreditCard, 
+  User, ChevronDown, LogOut, 
   Settings, Plus, History 
 } from 'lucide-react';
 

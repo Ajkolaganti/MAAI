@@ -2,9 +2,9 @@
 
 'use client';
 
-import { useState } from 'react';
+// import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { Settings, CreditCard, Shield, Bell } from 'lucide-react';
+// import { Settings, CreditCard, Shield, Bell } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user } = useAuth();
