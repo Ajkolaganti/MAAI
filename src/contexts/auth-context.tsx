@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { 
-  User,
+  User as FirebaseUser,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -115,18 +115,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: user.uid,
           email: user.email || ''
         });
-        const userDocRef = doc(db, 'users', user.uid);
-        const unsubscribeDoc = onSnapshot(userDocRef, (doc) => {
-          if (doc.exists()) {
-            const userData = doc.data() as UserData;
-            setCredits(userData.credits);
-          }
-          setLoading(false);
-        });
+        
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const unsubscribeDoc = onSnapshot(
+            userDocRef, 
+            (doc) => {
+              if (doc.exists()) {
+                const userData = doc.data() as UserData;
+                setCredits(userData.credits);
+              }
+              setLoading(false);
+            },
+            (error) => {
+              console.error('Firestore subscription error:', error);
+              // Set default credits if there's an error
+              setCredits(DEFAULT_CREDITS);
+              setLoading(false);
+            }
+          );
 
-        return () => unsubscribeDoc();
+          return () => {
+            unsubscribeDoc();
+          };
+        } catch (error) {
+          console.error('Error setting up Firestore listener:', error);
+          setCredits(DEFAULT_CREDITS);
+          setLoading(false);
+        }
       } else {
         setUser(null);
+        setCredits(DEFAULT_CREDITS);
         setLoading(false);
       }
     });
